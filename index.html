@@ -3,130 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>3615 GRANVILLE</title>
+    <title>ORBITAL-STATION / GRANVILLE</title>
     
-    <!-- Configuration Web App (PWA) -->
+    <!-- Paramètres PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="3615 Granville">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
-    
-    <!-- Icône de l'application -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📟</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22black%22/><text x=%2215%22 y=%2275%22 font-size=%2260%22 fill=%22%23ffcc00%22 font-family=%22monospace%22>3615</text></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;300;400&family=Inter:wght@200;400;700&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --minitel-yellow: #ffcc00; }
+        :root {
+            --sci-fi-cyan: #00f2ff;
+            --sci-fi-earth: #0088cc;
+            --sci-fi-dim: rgba(0, 242, 255, 0.2);
+            --bg-dark: #05070a;
+        }
         body { 
-            background-color: #1a1a1a; 
-            color: var(--minitel-yellow); 
-            font-family: 'VT323', monospace; 
+            background-color: var(--bg-dark); 
+            color: var(--sci-fi-cyan); 
+            font-family: 'JetBrains Mono', monospace; 
             height: 100vh; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            margin: 0; 
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            letter-spacing: 1px;
+        }
+        
+        .interface-container {
+            width: 90vw;
+            max-width: 1000px;
+            padding: 2.5rem;
+            position: relative;
+        }
+
+        /* Coins décoratifs */
+        .corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--sci-fi-cyan);
+            opacity: 0.6;
+        }
+        .top-left { top: 0; left: 0; border-right: none; border-bottom: none; }
+        .top-right { top: 0; right: 0; border-left: none; border-bottom: none; }
+        .bottom-left { bottom: 0; left: 0; border-right: none; border-top: none; }
+        .bottom-right { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+        .line-glow {
+            text-shadow: 0 0 20px var(--sci-fi-dim);
+        }
+
+        .data-label {
+            font-size: 0.6rem;
+            color: var(--sci-fi-dim);
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
             text-transform: uppercase;
-            overflow: hidden; 
-            touch-action: manipulation;
+            margin-bottom: 0.35rem;
+            letter-spacing: 2px;
         }
-        .monitor { 
-            background-color: #000; 
-            width: 95vw; 
-            max-width: 800px; 
-            aspect-ratio: 4 / 3; 
-            border: 20px solid #333; 
-            border-radius: 15px; 
-            position: relative; 
-            box-shadow: inset 0 0 50px #000, 0 20px 50px rgba(0,0,0,0.5); 
-            padding: 20px; 
-            overflow: hidden; 
-            border-bottom-width: 40px; 
+
+        .scanning-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--sci-fi-dim), transparent);
+            top: 0;
+            animation: scan 10s linear infinite;
+            z-index: 50;
+            pointer-events: none;
         }
-        .screen-overlay { 
-            position: absolute; 
-            top: 0; left: 0; bottom: 0; right: 0; 
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%); 
-            background-size: 100% 4px; 
-            z-index: 10; 
-            pointer-events: none; 
+
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
         }
-        .minitel-header { 
-            background-color: var(--minitel-yellow); 
-            color: black; 
-            font-weight: bold; 
-            padding: 2px 10px; 
-            display: flex; 
-            justify-content: space-between; 
-            margin-bottom: 20px; 
-            font-size: 1.5rem; 
+
+        /* Système Solaire */
+        .solar-system {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0.5;
         }
-        .minitel-content { 
-            border: 2px solid var(--minitel-yellow); 
-            height: 85%; 
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
+        .planet {
+            border: 1px solid var(--sci-fi-cyan);
+            border-radius: 50%;
+            flex-shrink: 0;
         }
-        .pixel-border { border: 4px double var(--minitel-yellow); padding: 15px; }
-        .btn-fake { background: var(--minitel-yellow); color: black; padding: 0 5px; margin-right: 5px; }
-        .blink { animation: blinker 1s step-start infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
+        .planet.sun { width: 32px; height: 32px; background: var(--sci-fi-cyan); box-shadow: 0 0 10px var(--sci-fi-cyan); }
+        .planet.p1 { width: 4px; height: 4px; }
+        .planet.p2 { width: 8px; height: 8px; }
+        .planet.p3 { width: 10px; height: 10px; background: var(--sci-fi-earth); border-color: var(--sci-fi-earth); box-shadow: 0 0 5px var(--sci-fi-earth); } /* Terre */
+        .planet.p4 { width: 6px; height: 6px; }
+        .planet.p5 { width: 22px; height: 22px; }
+        .planet.p6 { width: 18px; height: 18px; position: relative; }
+        .planet.p6::after { content:''; position: absolute; top:50%; left:50%; transform:translate(-50%, -50%) rotate(-25deg); width: 26px; height: 2px; border: 1px solid var(--sci-fi-cyan); border-radius: 50%; }
+        .planet.p7 { width: 12px; height: 12px; }
+        .planet.p8 { width: 12px; height: 12px; }
     </style>
 </head>
 <body>
-    <div class="monitor">
-        <div class="screen-overlay"></div>
-        <div class="minitel-header">
-            <span>3615 GRANVILLE</span>
-            <span>STATION ACTIVE <span class="blink">_</span></span>
+
+    <div class="interface-container">
+        <div class="corner top-left"></div>
+        <div class="corner top-right"></div>
+        <div class="corner bottom-left"></div>
+        <div class="corner bottom-right"></div>
+        <div class="scanning-line"></div>
+
+        <!-- En-tête avec Localisation remplacée -->
+        <div class="flex justify-between items-end border-b border-[#00f2ff22] pb-6 mb-10">
+            <div>
+                <div class="data-label">Geospatial Targeting</div>
+                <h1 class="text-3xl font-light tracking-[0.1em] italic mt-1 uppercase">
+                    Solar System / Earth / France / Normandy / Granville
+                </h1>
+            </div>
+            <div class="text-right">
+                <div class="data-label">Stellar Time</div>
+                <div id="clock" class="text-3xl font-extralight tracking-tighter">00:00:00</div>
+            </div>
         </div>
-        <div class="minitel-content">
-            <!-- Section Horloge -->
-            <div class="text-center mb-8">
-                <div id="clock" class="text-7xl font-bold mb-2">00:00:00</div>
-                <div id="date" class="text-2xl border-t border-b border-yellow-500 py-1">CHARGEMENT...</div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <!-- BLOC 1 : SOLAIRE & EXTREMES -->
-                <div class="pixel-border flex flex-col justify-center">
-                    <div class="text-xl mb-4 font-bold"><span class="btn-fake">1</span> CYCLE SOLAIRE</div>
-                    <div id="solar-info" class="text-2xl space-y-2">
-                        <div>LEVER : <span id="sunrise">--:--</span></div>
-                        <div>COUCHER : <span id="sunset">--:--</span></div>
-                        <div class="mt-4 pt-2 border-t border-yellow-900 italic text-lg text-center">
-                            MAX <span id="temp-max">--</span>°C | MIN <span id="temp-min">--</span>°C
-                        </div>
-                    </div>
+        <!-- Affichage Principal -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            
+            <!-- Bloc 1: Date & Solaire -->
+            <div class="border-l border-[#00f2ff22] pl-6 flex flex-col justify-between py-2">
+                <div>
+                    <div class="data-label">Orbital Rotation</div>
+                    <div id="date" class="text-xl font-light italic">-- --- ----</div>
                 </div>
-
-                <!-- BLOC 2 : METEO LOCALE -->
-                <div class="pixel-border flex flex-col justify-center text-center">
-                    <div class="text-xl mb-4 font-bold text-left"><span class="btn-fake">2</span> METEO LOCALE</div>
-                    <div id="weather" class="flex flex-col items-center justify-center space-y-4">
-                        <div id="apparent" class="text-3xl font-bold">RESSENTI : <span id="feel">--</span> C</div>
-                        <div class="text-4xl border-t border-yellow-900 pt-4 w-full">
-                            ACTUEL : <span id="temp">--</span> C
-                        </div>
+                <div class="space-y-6 mt-8">
+                    <div>
+                        <div class="data-label">Photosphere Sunrise</div>
+                        <div id="sunrise" class="text-2xl font-thin tracking-widest">--:--</div>
+                    </div>
+                    <div>
+                        <div class="data-label">Photosphere Sunset</div>
+                        <div id="sunset" class="text-2xl font-thin tracking-widest">--:--</div>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-auto text-center opacity-40 text-xs">
-                MODE WEB-APP ACTIF | GPS : 48.833N / 1.571W
+            <!-- Bloc 2: Température Primaire -->
+            <div class="flex flex-col items-center justify-center py-4 border-x border-[#00f2ff11] relative">
+                <div class="data-label absolute top-0">Thermal Core Index</div>
+                <div class="relative mt-4">
+                    <span id="temp" class="text-[10rem] font-thin tracking-tighter line-glow leading-none">--</span>
+                    <span class="text-2xl absolute top-6 -right-10 font-light opacity-50">°C</span>
+                </div>
+                <div class="mt-8 flex gap-8">
+                    <div class="text-center">
+                        <div class="data-label">Peak_H</div>
+                        <div id="temp-max" class="text-lg font-light">--°</div>
+                    </div>
+                    <div class="text-center border-l border-[#00f2ff22] pl-8">
+                        <div class="data-label">Peak_L</div>
+                        <div id="temp-min" class="text-lg font-light">--°</div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Bloc 3: Données Ressenties -->
+            <div class="border-r border-[#00f2ff22] pr-6 text-right flex flex-col justify-between py-2">
+                <div>
+                    <div class="data-label">Somatic Perception</div>
+                    <div class="text-5xl font-extralight italic tracking-tighter"><span id="feel">--</span>°C</div>
+                </div>
+                <div class="mt-8 opacity-30 text-[0.6rem] leading-loose font-light">
+                    COORDS: 48.8333 N / 1.5714 W<br>
+                    SAT_LINK: ACTIVE<br>
+                    SIGNAL: 99.4%<br>
+                    ENCRYPTION: AES_256
+                </div>
+            </div>
+        </div>
+
+        <!-- Bas de page: Système Solaire -->
+        <div class="mt-16 flex justify-between items-center">
+            <div class="h-[1px] bg-gradient-to-r from-transparent to-[#00f2ff22] flex-grow mr-10"></div>
+            
+            <div class="solar-system">
+                <div class="planet sun"></div>
+                <div class="planet p1"></div>
+                <div class="planet p2"></div>
+                <div class="planet p3" title="Earth - Target Location"></div>
+                <div class="planet p4"></div>
+                <div class="planet p5"></div>
+                <div class="planet p6"></div>
+                <div class="planet p7"></div>
+                <div class="planet p8"></div>
+            </div>
+
+            <div class="h-[1px] bg-gradient-to-l from-transparent to-[#00f2ff22] flex-grow ml-10"></div>
         </div>
     </div>
 
     <script>
         function updateClock() {
             const now = new Date();
-            document.getElementById('clock').textContent = now.toLocaleTimeString('fr-FR');
-            document.getElementById('date').textContent = now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('clock').textContent = now.toLocaleTimeString('en-GB');
+            const options = { day: '2-digit', month: 'short', year: 'numeric' };
+            document.getElementById('date').textContent = now.toLocaleDateString('fr-FR', options).toUpperCase();
         }
         setInterval(updateClock, 1000);
         updateClock();
@@ -143,25 +231,22 @@
                 const response = await fetch(url);
                 const data = await response.json();
                 
-                const cur = data.current_weather;
-                if (cur) {
-                    document.getElementById('temp').textContent = Math.round(cur.temperature);
-                    
+                if (data.current_weather) {
+                    document.getElementById('temp').textContent = Math.round(data.current_weather.temperature);
+                    const currentHour = new Date().getHours();
                     if (data.hourly && data.hourly.apparent_temperature) {
-                        const currentHour = new Date().getHours();
                         document.getElementById('feel').textContent = Math.round(data.hourly.apparent_temperature[currentHour]);
                     }
                 }
 
-                const daily = data.daily;
-                if (daily) {
-                    document.getElementById('sunrise').textContent = formatTime(daily.sunrise[0]);
-                    document.getElementById('sunset').textContent = formatTime(daily.sunset[0]);
-                    document.getElementById('temp-max').textContent = Math.round(daily.temperature_2m_max[0]);
-                    document.getElementById('temp-min').textContent = Math.round(daily.temperature_2m_min[0]);
+                if (data.daily) {
+                    document.getElementById('sunrise').textContent = formatTime(data.daily.sunrise[0]);
+                    document.getElementById('sunset').textContent = formatTime(data.daily.sunset[0]);
+                    document.getElementById('temp-max').textContent = Math.round(data.daily.temperature_2m_max[0]);
+                    document.getElementById('temp-min').textContent = Math.round(data.daily.temperature_2m_min[0]);
                 }
             } catch (e) {
-                console.error("Erreur de transmission", e);
+                console.error("Erreur de liaison satellite", e);
             }
         }
         
