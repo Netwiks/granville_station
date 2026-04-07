@@ -12,7 +12,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
     
-    <!-- Icône de l'application (Emoji Minitel/TV comme fallback) -->
+    <!-- Icône de l'application -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📟</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22black%22/><text x=%2215%22 y=%2275%22 font-size=%2260%22 fill=%22%23ffcc00%22 font-family=%22monospace%22>3615</text></svg>">
 
@@ -30,7 +30,7 @@
             justify-content: center; 
             margin: 0; 
             text-transform: uppercase;
-            overflow: hidden; /* Empêche le scroll sur mobile */
+            overflow: hidden; 
             touch-action: manipulation;
         }
         .monitor { 
@@ -75,6 +75,15 @@
         .btn-fake { background: var(--minitel-yellow); color: black; padding: 0 5px; margin-right: 5px; }
         .blink { animation: blinker 1s step-start infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
+        
+        /* Barre de navigation Minitel en bas */
+        .minitel-nav {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            margin-top: auto;
+            padding-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -86,12 +95,12 @@
         </div>
         <div class="minitel-content">
             <!-- Section Horloge -->
-            <div class="text-center mb-8">
+            <div class="text-center mb-6">
                 <div id="clock" class="text-7xl font-bold mb-2">00:00:00</div>
                 <div id="date" class="text-2xl border-t border-b border-yellow-500 py-1">CHARGEMENT...</div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- BLOC 1 : SOLAIRE & EXTREMES -->
                 <div class="pixel-border">
                     <div class="text-xl mb-2 font-bold"><span class="btn-fake">1</span> CYCLE SOLAIRE</div>
@@ -104,19 +113,22 @@
                     </div>
                 </div>
 
-                <!-- BLOC 2 : METEO ACTUELLE -->
+                <!-- BLOC 2 : METEO LOCALE -->
                 <div class="pixel-border">
                     <div class="text-xl mb-2 font-bold"><span class="btn-fake">2</span> METEO LOCALE</div>
                     <div id="weather">
                         <div id="apparent" class="text-2xl mb-1">RESSENTI : <span id="feel">--</span> C</div>
                         <div class="text-3xl"><span id="temp">--</span> C | <span id="wind">--</span> KM/H</div>
-                        <div class="mt-2 opacity-60 text-sm italic">STATION : GRANVILLE-CENTRE</div>
+                        <div id="wind-dir" class="mt-2 text-xl italic text-white">VENT : --</div>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-auto text-center opacity-40 text-xs">
-                MODE WEB-APP ACTIF | GPS : 48.833N / 1.571W
+            <!-- Barre de navigation style Minitel (selon tes images) -->
+            <div class="minitel-nav">
+                <div>SOMMAIRE : <span class="text-white">SOMM</span></div>
+                <div>RETOUR : <span class="text-white">RETOUR</span></div>
+                <div>SUITE : <span class="text-white">ENVOI</span></div>
             </div>
         </div>
     </div>
@@ -136,8 +148,15 @@
             return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
         }
 
+        // Convertir les degrés du vent en direction textuelle
+        function getWindDirection(degree) {
+            const sectors = ["NORD", "NORD-EST", "EST", "SUD-EST", "SUD", "SUD-OUEST", "OUEST", "NORD-OUEST"];
+            return sectors[Math.round(degree / 45) % 8];
+        }
+
         async function fetchWeather() {
             try {
+                // Coordonnées Granville : 48.833, -1.571
                 const url = `https://api.open-meteo.com/v1/forecast?latitude=48.833&longitude=-1.571&current_weather=true&hourly=apparent_temperature&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&timezone=auto`;
                 const response = await fetch(url);
                 const data = await response.json();
@@ -146,6 +165,10 @@
                 if (cur) {
                     document.getElementById('temp').textContent = Math.round(cur.temperature);
                     document.getElementById('wind').textContent = Math.round(cur.windspeed);
+                    
+                    // Direction du vent dynamique
+                    const direction = getWindDirection(cur.winddirection);
+                    document.getElementById('wind-dir').textContent = "VENT : " + direction;
                     
                     if (data.hourly && data.hourly.apparent_temperature) {
                         const currentHour = new Date().getHours();
