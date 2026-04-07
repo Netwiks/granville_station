@@ -38,7 +38,8 @@
         .interface-container {
             width: 90vw;
             max-width: 1000px;
-            padding: 2.5rem;
+            /* Réduction du padding vertical de 2.5rem à 1.5rem pour gagner environ 0.5mm au total */
+            padding: 1.5rem 2.5rem;
             position: relative;
         }
 
@@ -102,7 +103,7 @@
         .planet.sun { width: 32px; height: 32px; background: var(--sci-fi-cyan); box-shadow: 0 0 10px var(--sci-fi-cyan); }
         .planet.p1 { width: 4px; height: 4px; }
         .planet.p2 { width: 8px; height: 8px; }
-        .planet.p3 { width: 10px; height: 10px; background: var(--sci-fi-earth); border-color: var(--sci-fi-earth); box-shadow: 0 0 5px var(--sci-fi-earth); } /* Terre */
+        .planet.p3 { width: 10px; height: 10px; background: var(--sci-fi-earth); border-color: var(--sci-fi-earth); box-shadow: 0 0 5px var(--sci-fi-earth); } 
         .planet.p4 { width: 6px; height: 6px; }
         .planet.p5 { width: 22px; height: 22px; }
         .planet.p6 { width: 18px; height: 18px; position: relative; }
@@ -120,8 +121,8 @@
         <div class="corner bottom-right"></div>
         <div class="scanning-line"></div>
 
-        <!-- En-tête avec Localisation remplacée -->
-        <div class="flex justify-between items-end border-b border-[#00f2ff22] pb-6 mb-10">
+        <!-- En-tête -->
+        <div class="flex justify-between items-end border-b border-[#00f2ff22] pb-6 mb-8">
             <div>
                 <div class="data-label">Geospatial Targeting</div>
                 <h1 class="text-3xl font-light tracking-[0.1em] italic mt-1 uppercase">
@@ -143,7 +144,7 @@
                     <div class="data-label">Orbital Rotation</div>
                     <div id="date" class="text-xl font-light italic">-- --- ----</div>
                 </div>
-                <div class="space-y-6 mt-8">
+                <div class="space-y-4 mt-6">
                     <div>
                         <div class="data-label">Photosphere Sunrise</div>
                         <div id="sunrise" class="text-2xl font-thin tracking-widest">--:--</div>
@@ -156,13 +157,13 @@
             </div>
 
             <!-- Bloc 2: Température Primaire -->
-            <div class="flex flex-col items-center justify-center py-4 border-x border-[#00f2ff11] relative">
+            <div class="flex flex-col items-center justify-center border-x border-[#00f2ff11] relative">
                 <div class="data-label absolute top-0">Thermal Core Index</div>
-                <div class="relative mt-4">
+                <div class="relative mt-2">
                     <span id="temp" class="text-[10rem] font-thin tracking-tighter line-glow leading-none">--</span>
                     <span class="text-2xl absolute top-6 -right-10 font-light opacity-50">°C</span>
                 </div>
-                <div class="mt-8 flex gap-8">
+                <div class="mt-4 flex gap-8">
                     <div class="text-center">
                         <div class="data-label">Peak_H</div>
                         <div id="temp-max" class="text-lg font-light">--°</div>
@@ -180,7 +181,7 @@
                     <div class="data-label">Somatic Perception</div>
                     <div class="text-5xl font-extralight italic tracking-tighter"><span id="feel">--</span>°C</div>
                 </div>
-                <div class="mt-8 opacity-30 text-[0.6rem] leading-loose font-light">
+                <div class="mt-6 opacity-30 text-[0.6rem] leading-loose font-light">
                     COORDS: 48.8333 N / 1.5714 W<br>
                     SAT_LINK: ACTIVE<br>
                     SIGNAL: 99.4%<br>
@@ -190,7 +191,7 @@
         </div>
 
         <!-- Bas de page: Système Solaire -->
-        <div class="mt-16 flex justify-between items-center">
+        <div class="mt-12 flex justify-between items-center">
             <div class="h-[1px] bg-gradient-to-r from-transparent to-[#00f2ff22] flex-grow mr-10"></div>
             
             <div class="solar-system">
