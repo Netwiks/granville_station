@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ORBITAL-STATION / GRANVILLE</title>
     
-    <!-- Paramètres PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
@@ -38,12 +37,10 @@
         .interface-container {
             width: 90vw;
             max-width: 1000px;
-            /* Réduction du padding vertical de 2.5rem à 1.5rem pour gagner environ 0.5mm au total */
             padding: 1.5rem 2.5rem;
             position: relative;
         }
 
-        /* Coins décoratifs */
         .corner {
             position: absolute;
             width: 30px;
@@ -88,7 +85,6 @@
             100% { top: 100%; opacity: 0; }
         }
 
-        /* Système Solaire */
         .solar-system {
             display: flex;
             align-items: center;
@@ -110,6 +106,60 @@
         .planet.p6::after { content:''; position: absolute; top:50%; left:50%; transform:translate(-50%, -50%) rotate(-25deg); width: 26px; height: 2px; border: 1px solid var(--sci-fi-cyan); border-radius: 50%; }
         .planet.p7 { width: 12px; height: 12px; }
         .planet.p8 { width: 12px; height: 12px; }
+
+        .forecast-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0.4;
+        }
+
+        /* Indicateurs SF */
+        .system-status {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+        .status-icon {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.5rem;
+            font-weight: bold;
+        }
+        .wifi-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 1.5px;
+            height: 8px;
+        }
+        .wifi-bar {
+            width: 2px;
+            background: var(--sci-fi-cyan);
+        }
+        .battery-body {
+            width: 14px;
+            height: 7px;
+            border: 1px solid var(--sci-fi-cyan);
+            padding: 1px;
+            position: relative;
+        }
+        .battery-body::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 1px;
+            width: 2px;
+            height: 3px;
+            background: var(--sci-fi-cyan);
+        }
+        .battery-level {
+            height: 100%;
+            background: var(--sci-fi-cyan);
+            width: 75%;
+        }
     </style>
 </head>
 <body>
@@ -121,42 +171,73 @@
         <div class="corner bottom-right"></div>
         <div class="scanning-line"></div>
 
-        <!-- En-tête -->
         <div class="flex justify-between items-end border-b border-[#00f2ff22] pb-6 mb-8">
             <div>
-                <div class="data-label">Geospatial Targeting</div>
+                <div class="data-label">Geospatial Target</div>
                 <h1 class="text-3xl font-light tracking-[0.1em] italic mt-1 uppercase">
                     Solar System / Earth / France / Normandy / Granville
                 </h1>
             </div>
             <div class="text-right">
+                <!-- Barres de statut SF -->
+                <div class="system-status">
+                    <div class="status-icon">
+                        <span class="text-[0.45rem] tracking-[0.2em]">QUANTUM_HORIZON</span>
+                    </div>
+                    <div class="status-icon">
+                        <div class="wifi-bars">
+                            <div class="wifi-bar h-[2px]"></div>
+                            <div class="wifi-bar h-[4px]"></div>
+                            <div class="wifi-bar h-[6px]"></div>
+                            <div class="wifi-bar h-[8px]"></div>
+                        </div>
+                    </div>
+                    <div class="status-icon">
+                        <span>75%</span>
+                        <div class="battery-body">
+                            <div class="battery-level"></div>
+                        </div>
+                    </div>
+                </div>
                 <div class="data-label">Stellar Time</div>
                 <div id="clock" class="text-3xl font-extralight tracking-tighter">00:00:00</div>
             </div>
         </div>
 
-        <!-- Affichage Principal -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
             
-            <!-- Bloc 1: Date & Solaire -->
+            <!-- Date Area Updated with Pressure and Duration -->
             <div class="border-l border-[#00f2ff22] pl-6 flex flex-col justify-between py-2">
                 <div>
                     <div class="data-label">Orbital Rotation</div>
-                    <div id="date" class="text-xl font-light italic">-- --- ----</div>
+                    <div id="civil-date" class="text-xl font-light italic uppercase">--- 00 --- 0000</div>
+                    <div id="rotation-day" class="text-xs opacity-50 font-bold tracking-[0.2em] mt-1">DAY : ---</div>
+                    
+                    <div class="mt-4 space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="data-label !mb-0 text-[0.5rem]">ATM_PRESS:</span>
+                            <span id="atm-press" class="text-[0.65rem] font-bold">---- hPa</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="data-label !mb-0 text-[0.5rem]">PHOTO_DUR:</span>
+                            <span id="photo-dur" class="text-[0.65rem] font-bold">--H --M</span>
+                        </div>
+                    </div>
                 </div>
+                
                 <div class="space-y-4 mt-6">
                     <div>
                         <div class="data-label">Photosphere Sunrise</div>
-                        <div id="sunrise" class="text-2xl font-thin tracking-widest">--:--</div>
+                        <div class="text-2xl font-thin tracking-widest"><span id="sunrise">--:--</span> <span class="text-[0.6rem] opacity-30 ml-2">NEXT: <span id="sunrise-next">--:--</span></span></div>
                     </div>
                     <div>
                         <div class="data-label">Photosphere Sunset</div>
-                        <div id="sunset" class="text-2xl font-thin tracking-widest">--:--</div>
+                        <div class="text-2xl font-thin tracking-widest"><span id="sunset">--:--</span> <span class="text-[0.6rem] opacity-30 ml-2">NEXT: <span id="sunset-next">--:--</span></span></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Bloc 2: Température Primaire -->
+            <!-- Main Temp Area -->
             <div class="flex flex-col items-center justify-center border-x border-[#00f2ff11] relative">
                 <div class="data-label absolute top-0">Thermal Core Index</div>
                 <div class="relative mt-2">
@@ -175,13 +256,20 @@
                 </div>
             </div>
 
-            <!-- Bloc 3: Données Ressenties -->
+            <!-- Somatic Area -->
             <div class="border-r border-[#00f2ff22] pr-6 text-right flex flex-col justify-between py-2">
                 <div>
                     <div class="data-label">Somatic Perception</div>
                     <div class="text-5xl font-extralight italic tracking-tighter"><span id="feel">--</span>°C</div>
                 </div>
-                <div class="mt-6 opacity-30 text-[0.6rem] leading-loose font-light">
+
+                <div class="mt-4 mb-4">
+                    <div class="data-label">Future Projections (D+1 -> D+6)</div>
+                    <div id="forecast-grid" class="flex justify-end gap-3 pt-2">
+                    </div>
+                </div>
+
+                <div class="mt-2 opacity-30 text-[0.6rem] leading-loose font-light">
                     COORDS: 48.8333 N / 1.5714 W<br>
                     SAT_LINK: ACTIVE<br>
                     SIGNAL: 99.4%<br>
@@ -190,22 +278,19 @@
             </div>
         </div>
 
-        <!-- Bas de page: Système Solaire -->
         <div class="mt-12 flex justify-between items-center">
             <div class="h-[1px] bg-gradient-to-r from-transparent to-[#00f2ff22] flex-grow mr-10"></div>
-            
             <div class="solar-system">
                 <div class="planet sun"></div>
                 <div class="planet p1"></div>
                 <div class="planet p2"></div>
-                <div class="planet p3" title="Earth - Target Location"></div>
+                <div class="planet p3" title="Earth - Targeted Zone"></div>
                 <div class="planet p4"></div>
                 <div class="planet p5"></div>
                 <div class="planet p6"></div>
                 <div class="planet p7"></div>
                 <div class="planet p8"></div>
             </div>
-
             <div class="h-[1px] bg-gradient-to-l from-transparent to-[#00f2ff22] flex-grow ml-10"></div>
         </div>
     </div>
@@ -214,21 +299,30 @@
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').textContent = now.toLocaleTimeString('en-GB');
-            const options = { day: '2-digit', month: 'short', year: 'numeric' };
-            document.getElementById('date').textContent = now.toLocaleDateString('fr-FR', options).toUpperCase();
+            const options = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
+            const englishDate = now.toLocaleDateString('en-GB', options).toUpperCase();
+            document.getElementById('civil-date').textContent = englishDate.replace(',', '');
+
+            const start = new Date(now.getFullYear(), 0, 0);
+            const diff = now - start;
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+            const formattedDay = dayOfYear.toString().padStart(3, '0');
+            document.getElementById('rotation-day').textContent = `DAY : ${formattedDay}`;
         }
+        
         setInterval(updateClock, 1000);
         updateClock();
 
         function formatTime(isoString) {
             if (!isoString) return "--:--";
             const date = new Date(isoString);
-            return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
         }
 
         async function fetchWeather() {
             try {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=48.833&longitude=-1.571&current_weather=true&hourly=apparent_temperature&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&timezone=auto`;
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=48.833&longitude=-1.571&current_weather=true&hourly=apparent_temperature,surface_pressure&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&timezone=auto`;
                 const response = await fetch(url);
                 const data = await response.json();
                 
@@ -238,16 +332,44 @@
                     if (data.hourly && data.hourly.apparent_temperature) {
                         document.getElementById('feel').textContent = Math.round(data.hourly.apparent_temperature[currentHour]);
                     }
+                    if (data.hourly && data.hourly.surface_pressure) {
+                        document.getElementById('atm-press').textContent = Math.round(data.hourly.surface_pressure[currentHour]) + " hPa";
+                    }
                 }
 
                 if (data.daily) {
+                    const sunrise = new Date(data.daily.sunrise[0]);
+                    const sunset = new Date(data.daily.sunset[0]);
+                    
                     document.getElementById('sunrise').textContent = formatTime(data.daily.sunrise[0]);
                     document.getElementById('sunset').textContent = formatTime(data.daily.sunset[0]);
                     document.getElementById('temp-max').textContent = Math.round(data.daily.temperature_2m_max[0]);
                     document.getElementById('temp-min').textContent = Math.round(data.daily.temperature_2m_min[0]);
+                    
+                    document.getElementById('sunrise-next').textContent = formatTime(data.daily.sunrise[1]);
+                    document.getElementById('sunset-next').textContent = formatTime(data.daily.sunset[1]);
+
+                    // Calculate Duration
+                    const durMs = sunset - sunrise;
+                    const durHours = Math.floor(durMs / (1000 * 60 * 60));
+                    const durMins = Math.floor((durMs % (1000 * 60 * 60)) / (1000 * 60));
+                    document.getElementById('photo-dur').textContent = `${durHours}H ${durMins}M`;
+
+                    const forecastGrid = document.getElementById('forecast-grid');
+                    forecastGrid.innerHTML = '';
+                    for(let i = 1; i <= 6; i++) {
+                        const tempMax = Math.round(data.daily.temperature_2m_max[i]);
+                        const div = document.createElement('div');
+                        div.className = 'forecast-item';
+                        div.innerHTML = `
+                            <span class="text-[0.5rem] font-bold opacity-50 mb-1">D+${i}</span>
+                            <span class="text-sm font-light italic">${tempMax}°</span>
+                        `;
+                        forecastGrid.appendChild(div);
+                    }
                 }
             } catch (e) {
-                console.error("Erreur de liaison satellite", e);
+                console.error("Satellite Link Failure", e);
             }
         }
         
