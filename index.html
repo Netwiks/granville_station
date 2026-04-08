@@ -37,7 +37,11 @@
         .interface-container {
             width: 90vw;
             max-width: 1000px;
-            padding: 1.5rem 2.5rem;
+            /* REDUCTION OF 2mm TOP AND BOTTOM FOR TABLET DISPLAY */
+            padding-top: calc(1.5rem - 2mm);
+            padding-bottom: calc(1.5rem - 2mm);
+            padding-left: 2.5rem;
+            padding-right: 2.5rem;
             position: relative;
         }
 
@@ -114,7 +118,6 @@
             opacity: 0.4;
         }
 
-        /* Indicateurs SF */
         .system-status {
             display: flex;
             gap: 12px;
@@ -160,6 +163,56 @@
             background: var(--sci-fi-cyan);
             width: 75%;
         }
+
+        .page {
+            display: none;
+            transition: all 0.5s ease;
+        }
+        .page.active {
+            display: block;
+        }
+        .nav-btn {
+            background: rgba(0, 242, 255, 0.05);
+            border: 1px solid var(--sci-fi-dim);
+            padding: 4px 12px;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 10px;
+        }
+        .nav-btn:hover {
+            background: var(--sci-fi-dim);
+            border-color: var(--sci-fi-cyan);
+        }
+
+        .hourly-scroll {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--sci-fi-dim) transparent;
+        }
+        .hourly-scroll::-webkit-scrollbar { height: 4px; }
+        .hourly-scroll::-webkit-scrollbar-thumb { background: var(--sci-fi-dim); border-radius: 10px; }
+        
+        .hourly-card {
+            min-width: 70px;
+            border: 1px solid var(--sci-fi-dim);
+            padding: 10px;
+            text-align: center;
+            background: rgba(0, 242, 255, 0.02);
+        }
+
+        .moon-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border: 1px solid var(--sci-fi-dim);
+            padding: 20px;
+            background: rgba(0, 242, 255, 0.03);
+        }
     </style>
 </head>
 <body>
@@ -171,6 +224,7 @@
         <div class="corner bottom-right"></div>
         <div class="scanning-line"></div>
 
+        <!-- HEADER -->
         <div class="flex justify-between items-end border-b border-[#00f2ff22] pb-6 mb-8">
             <div>
                 <div class="data-label">Geospatial Target</div>
@@ -179,7 +233,6 @@
                 </h1>
             </div>
             <div class="text-right">
-                <!-- Barres de statut SF -->
                 <div class="system-status">
                     <div class="status-icon">
                         <span class="text-[0.45rem] tracking-[0.2em]">QUANTUM_HORIZON</span>
@@ -199,85 +252,116 @@
                         </div>
                     </div>
                 </div>
-                <div class="data-label">Stellar Time</div>
-                <div id="clock" class="text-3xl font-extralight tracking-tighter">00:00:00</div>
+                <div class="flex items-center justify-end">
+                    <div class="text-right">
+                        <div class="data-label">Stellar Time</div>
+                        <div id="clock" class="text-3xl font-extralight tracking-tighter">00:00:00</div>
+                    </div>
+                    <button id="next-page-btn" class="nav-btn" onclick="showPage(2)">Next Page</button>
+                    <button id="back-page-btn" class="nav-btn hidden" onclick="showPage(1)">Back</button>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-            
-            <!-- Date Area Updated with Pressure and Duration -->
-            <div class="border-l border-[#00f2ff22] pl-6 flex flex-col justify-between py-2">
-                <div>
-                    <div class="data-label">Orbital Rotation</div>
-                    <div id="civil-date" class="text-xl font-light italic uppercase">--- 00 --- 0000</div>
-                    <div id="rotation-day" class="text-xs opacity-50 font-bold tracking-[0.2em] mt-1">DAY : ---</div>
+        <!-- PAGE 1 -->
+        <div id="page-1" class="page active">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div class="border-l border-[#00f2ff22] pl-6 flex flex-col justify-between py-2">
+                    <div>
+                        <div class="data-label">Orbital Rotation</div>
+                        <div id="civil-date" class="text-xl font-light italic uppercase">--- 00 --- 0000</div>
+                        <div id="rotation-day" class="text-xs opacity-50 font-bold tracking-[0.2em] mt-1">DAY : ---</div>
+                        
+                        <div class="mt-4 space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="data-label !mb-0 text-[0.5rem]">ATM_PRES:</span>
+                                <span id="atm-press" class="text-[0.65rem] font-bold">---- hPa</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="data-label !mb-0 text-[0.5rem]">PHOTO_DUR:</span>
+                                <span id="photo-dur" class="text-[0.65rem] font-bold">--H --M</span>
+                            </div>
+                        </div>
+                    </div>
                     
-                    <div class="mt-4 space-y-1">
-                        <div class="flex items-center gap-2">
-                            <span class="data-label !mb-0 text-[0.5rem]">ATM_PRESS:</span>
-                            <span id="atm-press" class="text-[0.65rem] font-bold">---- hPa</span>
+                    <div class="space-y-4 mt-6">
+                        <div>
+                            <div class="data-label">Sunrise</div>
+                            <div class="text-2xl font-thin tracking-widest"><span id="sunrise">--:--</span> <span class="text-[0.6rem] opacity-30 ml-2">NEXT: <span id="sunrise-next">--:--</span></span></div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <span class="data-label !mb-0 text-[0.5rem]">PHOTO_DUR:</span>
-                            <span id="photo-dur" class="text-[0.65rem] font-bold">--H --M</span>
+                        <div>
+                            <div class="data-label">Sunset</div>
+                            <div class="text-2xl font-thin tracking-widest"><span id="sunset">--:--</span> <span class="text-[0.6rem] opacity-30 ml-2">NEXT: <span id="sunset-next">--:--</span></span></div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="space-y-4 mt-6">
+
+                <div class="flex flex-col items-center justify-center border-x border-[#00f2ff11] relative">
+                    <div class="data-label absolute top-0">Central Thermal Index</div>
+                    <div class="relative mt-2">
+                        <span id="temp" class="text-[10rem] font-thin tracking-tighter line-glow leading-none">--</span>
+                        <span class="text-2xl absolute top-6 -right-10 font-light opacity-50">°C</span>
+                    </div>
+                    <div class="mt-4 flex gap-8">
+                        <div class="text-center">
+                            <div class="data-label">Peak_H</div>
+                            <div id="temp-max" class="text-lg font-light">--°</div>
+                        </div>
+                        <div class="text-center border-l border-[#00f2ff22] pl-8">
+                            <div class="data-label">Peak_L</div>
+                            <div id="temp-min" class="text-lg font-light">--°</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-r border-[#00f2ff22] pr-6 text-right flex flex-col justify-between py-2">
                     <div>
-                        <div class="data-label">Photosphere Sunrise</div>
-                        <div class="text-2xl font-thin tracking-widest"><span id="sunrise">--:--</span> <span class="text-[0.6rem] opacity-30 ml-2">NEXT: <span id="sunrise-next">--:--</span></span></div>
+                        <div class="data-label">Somatic Perception</div>
+                        <div class="text-5xl font-extralight italic tracking-tighter"><span id="feel">--</span>°C</div>
                     </div>
-                    <div>
-                        <div class="data-label">Photosphere Sunset</div>
-                        <div class="text-2xl font-thin tracking-widest"><span id="sunset">--:--</span> <span class="text-[0.6rem] opacity-30 ml-2">NEXT: <span id="sunset-next">--:--</span></span></div>
+                    <div class="mt-4 mb-4">
+                        <div class="data-label">Future Projections (D+1 -> D+6)</div>
+                        <div id="forecast-grid" class="flex justify-end gap-3 pt-2"></div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Main Temp Area -->
-            <div class="flex flex-col items-center justify-center border-x border-[#00f2ff11] relative">
-                <div class="data-label absolute top-0">Thermal Core Index</div>
-                <div class="relative mt-2">
-                    <span id="temp" class="text-[10rem] font-thin tracking-tighter line-glow leading-none">--</span>
-                    <span class="text-2xl absolute top-6 -right-10 font-light opacity-50">°C</span>
-                </div>
-                <div class="mt-4 flex gap-8">
-                    <div class="text-center">
-                        <div class="data-label">Peak_H</div>
-                        <div id="temp-max" class="text-lg font-light">--°</div>
+                    <div class="mt-2 opacity-30 text-[0.6rem] leading-loose font-light">
+                        COORD: 48.8333 N / 1.5714 W<br>
+                        SAT_LINK: ACTIVE<br>
+                        SIGNAL: 99.4%<br>
+                        ENCRYPTION: AES_256
                     </div>
-                    <div class="text-center border-l border-[#00f2ff22] pl-8">
-                        <div class="data-label">Peak_L</div>
-                        <div id="temp-min" class="text-lg font-light">--°</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Somatic Area -->
-            <div class="border-r border-[#00f2ff22] pr-6 text-right flex flex-col justify-between py-2">
-                <div>
-                    <div class="data-label">Somatic Perception</div>
-                    <div class="text-5xl font-extralight italic tracking-tighter"><span id="feel">--</span>°C</div>
-                </div>
-
-                <div class="mt-4 mb-4">
-                    <div class="data-label">Future Projections (D+1 -> D+6)</div>
-                    <div id="forecast-grid" class="flex justify-end gap-3 pt-2">
-                    </div>
-                </div>
-
-                <div class="mt-2 opacity-30 text-[0.6rem] leading-loose font-light">
-                    COORDS: 48.8333 N / 1.5714 W<br>
-                    SAT_LINK: ACTIVE<br>
-                    SIGNAL: 99.4%<br>
-                    ENCRYPTION: AES_256
                 </div>
             </div>
         </div>
 
+        <!-- PAGE 2 -->
+        <div id="page-2" class="page">
+            <div class="grid grid-cols-1 gap-8">
+                <div>
+                    <div class="data-label mb-4 italic">Chronological Atmospheric Flux (00h - 23h)</div>
+                    <div id="hourly-container" class="hourly-scroll"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                    <div class="moon-container">
+                        <div id="moon-svg-container" class="w-24 h-24"></div>
+                        <div>
+                            <div class="data-label">Nocturnal Sat Phase</div>
+                            <div id="moon-phase-name" class="text-2xl font-light italic uppercase tracking-widest">Scanning...</div>
+                            <div id="moon-illumination" class="text-xs opacity-50 mt-1 uppercase">Illumination: --%</div>
+                        </div>
+                    </div>
+                    <div class="border-l border-[#00f2ff11] pl-6 flex flex-col justify-center">
+                        <div class="data-label">Observation Notes</div>
+                        <div class="text-[0.65rem] italic opacity-40 font-light mt-2 leading-relaxed uppercase">
+                            Visual tracking of Luna via orbital sensors. <br>
+                            Tilt and illumination processing via quantum cores. <br>
+                            Atmospheric interference: Minimal.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
         <div class="mt-12 flex justify-between items-center">
             <div class="h-[1px] bg-gradient-to-r from-transparent to-[#00f2ff22] flex-grow mr-10"></div>
             <div class="solar-system">
@@ -296,19 +380,31 @@
     </div>
 
     <script>
+        function showPage(num) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${num}`).classList.add('active');
+            
+            if (num === 2) {
+                document.getElementById('next-page-btn').classList.add('hidden');
+                document.getElementById('back-page-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('next-page-btn').classList.remove('hidden');
+                document.getElementById('back-page-btn').classList.add('hidden');
+            }
+        }
+
         function updateClock() {
             const now = new Date();
-            document.getElementById('clock').textContent = now.toLocaleTimeString('en-GB');
+            document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { hour12: false });
             const options = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
-            const englishDate = now.toLocaleDateString('en-GB', options).toUpperCase();
-            document.getElementById('civil-date').textContent = englishDate.replace(',', '');
+            const englishDate = now.toLocaleDateString('en-US', options).toUpperCase();
+            document.getElementById('civil-date').textContent = englishDate;
 
             const start = new Date(now.getFullYear(), 0, 0);
             const diff = now - start;
             const oneDay = 1000 * 60 * 60 * 24;
             const dayOfYear = Math.floor(diff / oneDay);
-            const formattedDay = dayOfYear.toString().padStart(3, '0');
-            document.getElementById('rotation-day').textContent = `DAY : ${formattedDay}`;
+            document.getElementById('rotation-day').textContent = `DAY : ${dayOfYear.toString().padStart(3, '0')}`;
         }
         
         setInterval(updateClock, 1000);
@@ -317,60 +413,112 @@
         function formatTime(isoString) {
             if (!isoString) return "--:--";
             const date = new Date(isoString);
-            return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+
+        function getWeatherIcon(code) {
+            let color = "var(--sci-fi-cyan)";
+            if (code === 0) return `<svg viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`;
+            if (code <= 3) return `<svg viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.5"><path d="M17.5 19c2.5 0 4.5-2 4.5-4.5S20 10 17.5 10c-.2 0-.4 0-.6.1C16 7.1 13.2 5 10 5 5.6 5 2 8.6 2 13s3.6 8 8 8h7.5"/></svg>`;
+            return `<svg viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.5"><path d="M16 13c0 2.2-1.8 4-4 4s-4-1.8-4-4 4-7 4-7 4 4.8 4 7z"/><path d="M20 17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5 2.5-4.4 2.5-4.4 2.5 3 2.5 4.4z"/><path d="M8 17.5C8 18.9 6.9 20 5.5 20S3 18.9 3 17.5s2.5-4.4 2.5-4.4 2.5 3 2.5 4.4z"/></svg>`;
+        }
+
+        function getMoonPhase() {
+            const date = new Date();
+            let year = date.getFullYear();
+            let month = date.getMonth() + 1;
+            let day = date.getDate();
+            if (month < 3) { year--; month += 12; }
+            let c = 365.25 * year;
+            let e = 30.6 * month;
+            let jd = c + e + day - 694039.09; 
+            jd /= 29.5305882; 
+            let phase = jd - Math.floor(jd); 
+            
+            let name = "Scanning...";
+            if (phase < 0.06 || phase > 0.94) name = "New Moon";
+            else if (phase < 0.19) name = "Waxing Crescent";
+            else if (phase < 0.31) name = "First Quarter";
+            else if (phase < 0.44) name = "Waxing Gibbous";
+            else if (phase < 0.56) name = "Full Moon";
+            else if (phase < 0.69) name = "Waning Gibbous";
+            else if (phase < 0.81) name = "Last Quarter";
+            else name = "Waning Crescent";
+
+            return { phase, name, illumination: Math.round(100 - (Math.abs(0.5 - phase) * 200)) };
+        }
+
+        function drawMoonSVG(phase) {
+            let color = "var(--sci-fi-cyan)";
+            let svg = `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" stroke="${color}" stroke-width="0.5" fill="rgba(0,242,255,0.05)" />`;
+            if (phase <= 0.5) {
+                let rx = 18 - (phase * 72); 
+                svg += `<path d="M 20 2 A 18 18 0 1 1 20 38 A ${Math.abs(rx)} 18 0 1 ${rx > 0 ? 0 : 1} 20 2" fill="${color}" fill-opacity="0.8" />`;
+            } else {
+                let rx = (phase - 0.5) * 72 - 18;
+                svg += `<path d="M 20 2 A 18 18 0 1 0 20 38 A ${Math.abs(rx)} 18 0 1 ${rx > 0 ? 1 : 0} 20 2" fill="${color}" fill-opacity="0.8" />`;
+            }
+            svg += `</svg>`;
+            return svg;
         }
 
         async function fetchWeather() {
             try {
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=48.833&longitude=-1.571&current_weather=true&hourly=apparent_temperature,surface_pressure&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&timezone=auto`;
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=48.833&longitude=-1.571&current_weather=true&hourly=temperature_2m,apparent_temperature,surface_pressure,weathercode&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&timezone=auto`;
                 const response = await fetch(url);
                 const data = await response.json();
                 
                 if (data.current_weather) {
                     document.getElementById('temp').textContent = Math.round(data.current_weather.temperature);
                     const currentHour = new Date().getHours();
-                    if (data.hourly && data.hourly.apparent_temperature) {
+                    if (data.hourly) {
                         document.getElementById('feel').textContent = Math.round(data.hourly.apparent_temperature[currentHour]);
-                    }
-                    if (data.hourly && data.hourly.surface_pressure) {
                         document.getElementById('atm-press').textContent = Math.round(data.hourly.surface_pressure[currentHour]) + " hPa";
+
+                        const hourlyContainer = document.getElementById('hourly-container');
+                        hourlyContainer.innerHTML = '';
+                        for(let h = 0; h < 24; h++) {
+                            const card = document.createElement('div');
+                            card.className = `hourly-card ${h === currentHour ? 'border-[#00f2ff] bg-[#00f2ff11]' : ''}`;
+                            card.innerHTML = `
+                                <div class="text-[0.5rem] opacity-50 mb-1">${h.toString().padStart(2, '0')}:00</div>
+                                <div class="w-6 h-6 mx-auto my-2">${getWeatherIcon(data.hourly.weathercode[h])}</div>
+                                <div class="text-sm font-light italic">${Math.round(data.hourly.temperature_2m[h])}°</div>
+                            `;
+                            hourlyContainer.appendChild(card);
+                        }
                     }
                 }
 
                 if (data.daily) {
-                    const sunrise = new Date(data.daily.sunrise[0]);
-                    const sunset = new Date(data.daily.sunset[0]);
-                    
                     document.getElementById('sunrise').textContent = formatTime(data.daily.sunrise[0]);
                     document.getElementById('sunset').textContent = formatTime(data.daily.sunset[0]);
                     document.getElementById('temp-max').textContent = Math.round(data.daily.temperature_2m_max[0]);
                     document.getElementById('temp-min').textContent = Math.round(data.daily.temperature_2m_min[0]);
-                    
                     document.getElementById('sunrise-next').textContent = formatTime(data.daily.sunrise[1]);
                     document.getElementById('sunset-next').textContent = formatTime(data.daily.sunset[1]);
 
-                    // Calculate Duration
+                    const sunrise = new Date(data.daily.sunrise[0]);
+                    const sunset = new Date(data.daily.sunset[0]);
                     const durMs = sunset - sunrise;
-                    const durHours = Math.floor(durMs / (1000 * 60 * 60));
-                    const durMins = Math.floor((durMs % (1000 * 60 * 60)) / (1000 * 60));
-                    document.getElementById('photo-dur').textContent = `${durHours}H ${durMins}M`;
+                    document.getElementById('photo-dur').textContent = `${Math.floor(durMs / 3600000)}H ${Math.floor((durMs % 3600000) / 60000)}M`;
 
                     const forecastGrid = document.getElementById('forecast-grid');
                     forecastGrid.innerHTML = '';
                     for(let i = 1; i <= 6; i++) {
-                        const tempMax = Math.round(data.daily.temperature_2m_max[i]);
                         const div = document.createElement('div');
                         div.className = 'forecast-item';
-                        div.innerHTML = `
-                            <span class="text-[0.5rem] font-bold opacity-50 mb-1">D+${i}</span>
-                            <span class="text-sm font-light italic">${tempMax}°</span>
-                        `;
+                        div.innerHTML = `<span class="text-[0.5rem] font-bold opacity-50 mb-1">D+${i}</span><span class="text-sm font-light italic">${Math.round(data.daily.temperature_2m_max[i])}°</span>`;
                         forecastGrid.appendChild(div);
                     }
                 }
-            } catch (e) {
-                console.error("Satellite Link Failure", e);
-            }
+
+                const moon = getMoonPhase();
+                document.getElementById('moon-phase-name').textContent = moon.name;
+                document.getElementById('moon-illumination').textContent = `Illumination: ${moon.illumination}%`;
+                document.getElementById('moon-svg-container').innerHTML = drawMoonSVG(moon.phase);
+
+            } catch (e) { console.error("Satellite Link Failure", e); }
         }
         
         fetchWeather();
