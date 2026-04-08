@@ -35,14 +35,13 @@
         }
         
         .interface-container {
-            width: 90vw;
-            max-width: 1000px;
-            /* REDUCTION OF 2mm TOP AND BOTTOM FOR TABLET DISPLAY */
-            padding-top: calc(1.5rem - 2mm);
-            padding-bottom: calc(1.5rem - 2mm);
-            padding-left: 2.5rem;
-            padding-right: 2.5rem;
+            width: 95vw;
+            max-width: 1100px;
+            padding: 1.5rem 2.5rem;
             position: relative;
+            /* AJUSTEMENT GLOBAL POUR TABLETTE */
+            transform: scale(0.9); 
+            transform-origin: center center;
         }
 
         .corner {
@@ -188,9 +187,9 @@
 
         .hourly-scroll {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             overflow-x: auto;
-            padding-bottom: 10px;
+            padding-bottom: 12px;
             scrollbar-width: thin;
             scrollbar-color: var(--sci-fi-dim) transparent;
         }
@@ -198,9 +197,9 @@
         .hourly-scroll::-webkit-scrollbar-thumb { background: var(--sci-fi-dim); border-radius: 10px; }
         
         .hourly-card {
-            min-width: 70px;
+            min-width: 65px;
             border: 1px solid var(--sci-fi-dim);
-            padding: 10px;
+            padding: 8px;
             text-align: center;
             background: rgba(0, 242, 255, 0.02);
         }
@@ -210,8 +209,15 @@
             align-items: center;
             gap: 20px;
             border: 1px solid var(--sci-fi-dim);
-            padding: 20px;
+            padding: 15px 20px;
             background: rgba(0, 242, 255, 0.03);
+        }
+
+        /* Prevent potential scrollbars if the scaling still hits boundaries */
+        @media screen and (max-height: 700px) {
+            .interface-container {
+                transform: scale(0.82);
+            }
         }
     </style>
 </head>
@@ -224,7 +230,7 @@
         <div class="corner bottom-right"></div>
         <div class="scanning-line"></div>
 
-        <!-- HEADER -->
+        <!-- EN-TÊTE -->
         <div class="flex justify-between items-end border-b border-[#00f2ff22] pb-6 mb-8">
             <div>
                 <div class="data-label">Geospatial Target</div>
@@ -323,7 +329,7 @@
                         <div class="data-label">Future Projections (D+1 -> D+6)</div>
                         <div id="forecast-grid" class="flex justify-end gap-3 pt-2"></div>
                     </div>
-                    <div class="mt-2 opacity-30 text-[0.6rem] leading-loose font-light">
+                    <div class="mt-2 opacity-30 text-[0.6rem] leading-loose font-light uppercase">
                         COORD: 48.8333 N / 1.5714 W<br>
                         SAT_LINK: ACTIVE<br>
                         SIGNAL: 99.4%<br>
@@ -335,14 +341,14 @@
 
         <!-- PAGE 2 -->
         <div id="page-2" class="page">
-            <div class="grid grid-cols-1 gap-8">
+            <div class="grid grid-cols-1 gap-6">
                 <div>
-                    <div class="data-label mb-4 italic">Chronological Atmospheric Flux (00h - 23h)</div>
+                    <div class="data-label mb-3 italic">Chronological Atmospheric Flux (00h - 23h)</div>
                     <div id="hourly-container" class="hourly-scroll"></div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-2">
                     <div class="moon-container">
-                        <div id="moon-svg-container" class="w-24 h-24"></div>
+                        <div id="moon-svg-container" class="w-20 h-20"></div>
                         <div>
                             <div class="data-label">Nocturnal Sat Phase</div>
                             <div id="moon-phase-name" class="text-2xl font-light italic uppercase tracking-widest">Scanning...</div>
@@ -361,8 +367,8 @@
             </div>
         </div>
 
-        <!-- FOOTER -->
-        <div class="mt-12 flex justify-between items-center">
+        <!-- PIED DE PAGE -->
+        <div class="mt-10 flex justify-between items-center">
             <div class="h-[1px] bg-gradient-to-r from-transparent to-[#00f2ff22] flex-grow mr-10"></div>
             <div class="solar-system">
                 <div class="planet sun"></div>
@@ -380,10 +386,10 @@
     </div>
 
     <script>
+        // NAVIGATION
         function showPage(num) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${num}`).classList.add('active');
-            
             if (num === 2) {
                 document.getElementById('next-page-btn').classList.add('hidden');
                 document.getElementById('back-page-btn').classList.remove('hidden');
@@ -393,6 +399,7 @@
             }
         }
 
+        // CLOCK & DATE
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { hour12: false });
@@ -406,7 +413,6 @@
             const dayOfYear = Math.floor(diff / oneDay);
             document.getElementById('rotation-day').textContent = `DAY : ${dayOfYear.toString().padStart(3, '0')}`;
         }
-        
         setInterval(updateClock, 1000);
         updateClock();
 
@@ -434,7 +440,6 @@
             let jd = c + e + day - 694039.09; 
             jd /= 29.5305882; 
             let phase = jd - Math.floor(jd); 
-            
             let name = "Scanning...";
             if (phase < 0.06 || phase > 0.94) name = "New Moon";
             else if (phase < 0.19) name = "Waxing Crescent";
@@ -444,7 +449,6 @@
             else if (phase < 0.69) name = "Waning Gibbous";
             else if (phase < 0.81) name = "Last Quarter";
             else name = "Waning Crescent";
-
             return { phase, name, illumination: Math.round(100 - (Math.abs(0.5 - phase) * 200)) };
         }
 
